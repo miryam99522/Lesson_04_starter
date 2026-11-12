@@ -38,3 +38,19 @@ def test_submit_selection_rejects_media_id_not_in_gallery(sample_event):
 def test_submit_selection_rejects_duplicate_media_ids(sample_event):
     with pytest.raises(selection_core.SelectionError, match="DUPLICATE_MEDIA_ID"):
         selection_core.submit_selection(sample_event, "cli_100", ["med_1", "med_1"], ["add_to_album"])
+
+
+@pytest.mark.req("REQ-SEL-06")
+def test_submit_selection_rejects_non_client_actor(sample_event):
+    with pytest.raises(selection_core.SelectionError, match="FORBIDDEN"):
+        selection_core.submit_selection(sample_event, "cli_999", ["med_1"], ["add_to_album"])
+
+@pytest.mark.req("REQ-SEL-04")
+def test_rejected_selection_does_not_change_event(sample_event):
+    before = sample_event.copy()
+
+    with pytest.raises(selection_core.SelectionError):
+        selection_core.submit_selection(sample_event, "cli_999", ["med_1"], ["add_to_album"])
+
+    assert sample_event == before
+
